@@ -10,3 +10,4 @@ Following file order of the official tutorial [Getting Started With SC](https://
 5. SomeNoises
 6. Mix
 7. ScopingAndPlots
+8. SynthDefsAndSynths
