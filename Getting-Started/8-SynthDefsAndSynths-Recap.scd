@@ -121,3 +121,4 @@ s.scope;
 ~synth.set("freq", 220);
 ~synth.set("out", 1);
 ~synth.free;
+
