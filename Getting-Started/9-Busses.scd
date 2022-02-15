@@ -36,3 +36,59 @@ Just as many UGens have ar and kr methods, Bus has two commonly used creation me
 
 b = Bus.control(s, 2);  // Two channel control Bus
 c = Bus.audio(s)  // One channel private audio Bus
+
+/*Private Busses are anything besides the input and output chennels. All control busses are private.*/
+
+// ********************
+
+s.reboot;  // This will restart the server and thus reset the bus allocators.
+
+// b is a 2 channel control Bus. It uses indices 0 and 1 (so 2 in number).
+b = Bus.control(s, 2);
+b.index;
+b.numChannels;
+
+// c is a single channel private control Bus. It uses index 2 (one in number).
+c = Bus.control(s);
+c.index;
+c.numChannels;
+c.free;  // Free the index! You can't use this Bus object after that.
+
+/*But wait, what are indices used for?
+They are used to pick the right bus.
+"The first few busses are the output and input channels. Consider our server app with 2 output and 2 input channels. The first private audio bus is index 4. (0, 1, 2, 3 ... 4!)"*/
+
+// ********************
+
+// Busses in Action
+
+(
+SynthDef("tutorial-inFreq",
+	{
+		arg bus, out, freqOffset = 0;
+		// This will add freqOffset to whatever is read in from the bus.
+		Out.ar(out, SinOsc.ar(In.kr(bus) + freqOffset, 0, 0.5));
+	}
+).add;
+
+SynthDef("tutorial-outFreq",
+	{
+		arg bus, freq = 440;
+		Out.kr(bus, SinOsc.kr(1, 0, freq/40, freq));
+	}
+).add;
+
+~myBus = Bus.control(s, 1);
+)
+
+(
+~synthOut = Synth.new("tutorial-outFreq", [\bus, ~myBus]);
+~synthIn = Synth.after(~synthOut, "tutorial-inFreq", [\bus, ~myBus]);
+~synthInOffset = Synth.after(~synthOut, "tutorial-inFreq", [\bus, ~myBus, \freqOffset, 200]);
+)
+~synthOut.free; ~synthIn.free; ~synthInOffset.free; ~myBus.free;
+
+// ********************
+// More Fun with Control Busses
+
+
