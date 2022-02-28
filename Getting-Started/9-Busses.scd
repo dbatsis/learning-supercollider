@@ -91,4 +91,76 @@ SynthDef("tutorial-outFreq",
 // ********************
 // More Fun with Control Busses
 
+(
+// Create 2 control rate busses.
+// Use the .set method to assign constant values to them.
+~busOne = Bus.control(s, 1); ~busOne.set(329.63);
+~busTwo = Bus.control(s, 1); ~busTwo.set(392);
 
+~synth = SynthDef("MappingSynth",
+	{
+		arg freq1 = 440, freq2 = 440, out;
+
+		Out.ar(out, SinOsc.ar([freq1, freq2], mul:0.1));
+	}
+).play(s);
+)
+
+// Here we map ~synth arguments freq1, freq2 to read from the two busses.
+~synth.map(\freq1, ~busOne, \freq2, ~busTwo);
+
+(
+// Write a control rate signal to busOne.
+// This creates a fluctuation in frequency.
+~writeToBus = {
+	Out.kr(~busOne, SinOsc.kr(1, 0, 50, 329.63))
+}.play(addAction: \addToHead);
+)
+// When we free this, ~busOne holds the last value assigned to it
+// (resulting from the above mentioned fluctuation).
+~writeToBus.free;
+
+// Use .get method to poll bus's value.
+// We use a function called 'Action Function' allowing us to do something with the returned value. Here we store it in a global variable to access it later.
+~busOne.get({ arg val; val.postln; f = val;	});
+
+// Setting freq2 unmaps it from busTwo.
+~synth.set(\freq2, f / 2);
+
+~synth.free; ~busOne.free; ~busTwo.free;
+
+// ********************
+// A few words on latency
+
+/*
+Earlier in bus's .get method we used a function to acquire it's current value.
+We used a function because the Server needs a little time to respond with the value.
+This is our latency. Consider the following example:
+*/
+
+~bus = Bus.control(s, 1); ~bus.set(329.63);
+
+(
+f = nil;
+~bus.get({ arg val; f = val; });
+f.postln;
+)
+// The above returns nil.
+
+f.postln;  // This returns 329.63.
+
+// ********************
+// Getting it all in the Right Order
+
+/*
+As a general rule, when you are connecting synths together using busses it is important that synths which write signals to busses are earlier in the server's order than synths which read those signals from those busses.
+*/
+
+~firstSynth = Synth("default", [\freq, 300]);
+~secondSynth = Synth("default", [\freq, 450], ~firstSynth, \addAfter);
+
+// Another way of doing the same thing:
+~firstSynth = Synth("default", [\freq, 300]);
+~secondSynth = Synth.after(~firstSynth, "default", [\freq, 450]);
+
+~firstSynth.free; ~secondSynth.free;
