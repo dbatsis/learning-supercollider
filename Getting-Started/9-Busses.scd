@@ -37,7 +37,7 @@ Just as many UGens have ar and kr methods, Bus has two commonly used creation me
 b = Bus.control(s, 2);  // Two channel control Bus
 c = Bus.audio(s)  // One channel private audio Bus
 
-/*Private Busses are anything besides the input and output chennels. All control busses are private.*/
+/*Private Busses can be anything besides input and output channels. All control busses are private.*/
 
 // ********************
 
@@ -59,7 +59,6 @@ They are used to pick the right bus.
 "The first few busses are the output and input channels. Consider our server app with 2 output and 2 input channels. The first private audio bus is index 4. (0, 1, 2, 3 ... 4!)"*/
 
 // ********************
-
 // Busses in Action
 
 (
@@ -137,7 +136,6 @@ Earlier in bus's .get method we used a function to acquire it's current value.
 We used a function because the Server needs a little time to respond with the value.
 This is our latency. Consider the following example:
 */
-
 ~bus = Bus.control(s, 1); ~bus.set(329.63);
 
 (
