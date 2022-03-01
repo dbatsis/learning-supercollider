@@ -1,6 +1,6 @@
 /*
 A few words on variables.
-1) Lowercase letters represent grobal variables (eg. a, b...).
+1) Lowercase letters represent global variables (eg. a, b...).
 2) Declare long-named global variables using the tilde.
 3) Declare local variables (within functions) with the var keyword.
 */
